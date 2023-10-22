@@ -37,7 +37,6 @@ class IService(metaclass=ABCMeta):
         records: list[Record] = await self.service.select_symbols(is_deleted=is_deleted)
         return [record["name"] for record in records]
 
-
     async def delete_symbol(self, symbol: str):
         res = await self.service.delete_symbol(symbol=symbol)
         self.logger.info(f"Delete {symbol} from \"symbol\"")
