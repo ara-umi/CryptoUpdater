@@ -1,0 +1,25 @@
+{
+  "logger": {
+    "stream_level": "trace",
+    "file_level": "info"
+  },
+  "spider": {
+    "proxy": "",
+    "request_timeout_seconds": 5,
+    "max_tries": 10,
+    "retry_sleep_seconds": 1,
+    "semaphore_limit": 200,
+    "semaphore_sleep_seconds": 0
+  },
+  "service": {
+    "postgres": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "user": "",
+      "password": "",
+      "database": "",
+      "min_size": 10,
+      "max_size": 10
+    }
+  }
+}
