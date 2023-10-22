@@ -4,27 +4,30 @@
 # Email: 532990165@qq.com
 # DateTime: 2023/8/25 上午12:32
 
-from collections import OrderedDict
+from abc import ABCMeta
 from typing import Optional
-
-from attrs import define, field
 
 from .error_info import ErrorInfo
 from .kline import Kline
-
-from abc import abstractmethod, ABCMeta
-
 from .property import PlaceHolder
 
 
 class IData(metaclass=ABCMeta):
     symbol: str = PlaceHolder()
     timeframe: str = PlaceHolder()
-    limit: str = PlaceHolder()
+    limit: int = PlaceHolder()
 
     succeed: bool = False
     error: Optional[ErrorInfo] = None
     klines: Optional[list[Kline]] = []
+
+    def set_error(self, type_: str, message: str, traceback: str):
+        self.succeed = False
+        self.error = ErrorInfo(type=type_, message=message, traceback=traceback)
+
+    def set_klines(self, klines: list[Kline]):
+        self.succeed = True
+        self.klines = klines
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(" \
