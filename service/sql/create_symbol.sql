@@ -1,0 +1,6 @@
+CREATE TABLE symbol (
+    id UUID DEFAULT gen_random_uuid(),
+    create_time TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    name VARCHAR(30) PRIMARY KEY,
+    is_deleted BOOLEAN NOT NULL DEFAULT FALSE
+);
