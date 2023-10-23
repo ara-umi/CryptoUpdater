@@ -10,7 +10,7 @@ import traceback
 import warnings
 from abc import abstractmethod
 from functools import wraps
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Callable
 
 import aiohttp
 
@@ -27,32 +27,35 @@ ConfigType = TypeVar("ConfigType", bound=IConfig)
 
 
 class CatchWrapper(Generic[DataType]):
+    """
+    这里其实尝试了另一种装饰器的写法
+    这样写的有个缺点就是不能指定装饰器的初始化参数
+    好处是可以跳过pycharm的警告
+    """
 
-    def __call__(self, function):
-        @wraps(function)
-        async def async_wrapped(obj_self, data: DataType):
-            try:
-                return await function(obj_self, data=data)
+    def __init__(self, function: Callable):
+        self.function = function
 
-            except (MaxTriesError, StatusError) as e:
-                obj_self.logger.error(f"{str(e)}")
-                data.set_error(
-                    type_=e.__class__.__name__,
-                    message=str(e),
-                    traceback=traceback.format_exc()
-                )
-                return data
+    async def __call__(self, obj_self, data: DataType):
+        try:
+            return await self.function(obj_self, data=data)
+        except (MaxTriesError, StatusError) as e:
+            obj_self.logger.error(f"{str(e)}")
+            data.set_error(
+                type_=e.__class__.__name__,
+                message=str(e),
+                traceback=traceback.format_exc()
+            )
+            return data
 
-            except Exception as e:
-                warnings.warn(repr(e))
-                raise e
-
-        return async_wrapped
+        except Exception as e:
+            warnings.warn(repr(e))
+            raise e
 
 
 class TimeoutWrapper(Generic[DataType]):
 
-    def __call__(self, function):
+    def __call__(self, function: Callable):
         @wraps(function)
         async def async_wrapped(obj_self, *args, **kwargs):
             return await asyncio.wait_for(
@@ -64,7 +67,7 @@ class TimeoutWrapper(Generic[DataType]):
 
 
 class RetryWrapper(Generic[DataType]):
-    def __call__(self, function):
+    def __call__(self, function: Callable):
         @wraps(function)
         async def async_wrapped(obj_self, data: DataType, url: str):
             tries = 1
@@ -134,7 +137,7 @@ class BinanceKlineUpdater(IKlineUpdater, Generic[DataType, ConfigType]):
 
         return data
 
-    @CatchWrapper[DataType]()  # 捕获MaxTriesError/StatusError，并设置给data
+    @CatchWrapper[DataType]  # 捕获MaxTriesError/StatusError，并设置给data
     async def get_klines(self, data: DataType) -> DataType:
         # get raw
         raw: list[list[int, float, ...]] = []
@@ -212,7 +215,7 @@ class BinanceKlineUpdater(IKlineUpdater, Generic[DataType, ConfigType]):
 
     async def __call__(self, data: DataType) -> DataType:
         data = self.get_urls(data=data)
-        data = await self.get_klines(data=data)
+        data = await self.get_klines(self, data=data)
         return data
 
 

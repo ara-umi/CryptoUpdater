@@ -8,6 +8,7 @@ import asyncio
 import datetime
 import re
 from functools import wraps
+from typing import Callable
 
 import aiohttp
 import pytz
@@ -20,10 +21,13 @@ class TimeoutWrapper(object):
     def __init__(self, timeout_second: float = 3):
         self.timeout_second = timeout_second
 
-    def __call__(self, function):
+    def __call__(self, function: Callable):
         @wraps(function)
         async def async_wrapped(obj_self, *args, **kwargs):
-            return await asyncio.wait_for(function(obj_self, *args, **kwargs), timeout=self.timeout_second)
+            return await asyncio.wait_for(
+                function(obj_self, *args, **kwargs),
+                timeout=self.timeout_second
+            )
 
         return async_wrapped
 
@@ -33,7 +37,7 @@ class RetryWrapper(object):
         self.max_tries = max_tries
         self.retry_sleep_second = retry_sleep_second
 
-    def __call__(self, function):
+    def __call__(self, function: Callable):
 
         @wraps(function)
         async def async_wrapped(obj_self, *args, **kwargs):
