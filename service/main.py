@@ -44,7 +44,9 @@ class IService(metaclass=ABCMeta):
 
     async def insert_kline_many(self, symbol: str, timeframe: str, klines: list[Kline]):
         interval = timeframe_interval_dict[timeframe]
-        return await self.service.insert_kline_many(symbol=symbol, interval=interval, klines=klines)
+        res = await self.service.insert_kline_many(symbol=symbol, interval=interval, klines=klines)
+        self.logger.info(f"Insert kline: {symbol}-{timeframe} length: {len(klines)}")
+        return res
 
     async def select_kline(self, symbol: str, timeframe: str, limit: int = None) -> list[Kline]:
         interval = timeframe_interval_dict[timeframe]
