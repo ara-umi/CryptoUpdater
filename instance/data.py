@@ -57,68 +57,6 @@ class BinanceFuturesUMData(BinanceData):
     pass
 
 
-class DataFactory(object):
-    """
-    for update
-    """
-
-    limit_dict = {
-        "binance": {
-            "futures_um": {
-                "1M": 120,
-                "30M": 5,
-                "1H": 5,
-                "4H": 5,
-                "1D": 5
-            },
-            "spot": {
-            }
-        },
-        "okex": {}
-    }
-
-    @classmethod
-    def create_data(
-            cls,
-            symbol: str,
-            exchange: str,
-            type_: str,
-            timeframe: str
-    ) -> IData:
-        try:
-            limit = cls.limit_dict[exchange][type_][timeframe]  # 看需不需要做异常处理
-        except KeyError:
-            raise ValueError(f"Cannot find update limit, invalid input: {exchange}-{type_}-{timeframe}")
-
-        match (exchange, type_):
-            case ("binance", "futures_um"):
-                return BinanceData(
-                    symbol=symbol,
-                    timeframe=timeframe,
-                    exchange=exchange,
-                    type=type_,
-                    limit=limit
-                )
-            case _:
-                raise ValueError(f"Invalid exchange: {exchange} or type: {type_}")
-
-
-class DataInitFactory(DataFactory):
-    limit_dict = {
-        "binance": {
-            "futures_um": {
-                "1M": 900,
-                "30M": 900,
-                "1H": 900,
-                "4H": 900,
-                "1D": 900
-            },
-            "spot": {
-            }
-        },
-        "okex": {}
-    }
-
 
 if __name__ == "__main__":
     pass
