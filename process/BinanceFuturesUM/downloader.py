@@ -11,7 +11,7 @@ from ..downloader import IDownloaderProcess
 from ...config import BinanceFuturesUMConfig
 from ...instance.data import BinanceFuturesUMData
 from ...logger import LoggerFactory
-from ...service.connector import AsyncPgPoolConnector
+from ...service.connector import AsyncPgConnector
 from ...service.main import BinanceFuturesUMService
 
 
@@ -25,8 +25,6 @@ class BinanceFuturesUMDownloaderProcess(IDownloaderProcess):
 
         self.config = BinanceFuturesUMConfig()
         self.logger = LoggerFactory(config=self.config).create_logger()
-        self.connector = AsyncPgPoolConnector(config=self.config)
-        self.service = BinanceFuturesUMService(connector=self.connector, logger=self.logger)
 
         self.result_queue = result_queue
 
@@ -35,11 +33,16 @@ class BinanceFuturesUMDownloaderProcess(IDownloaderProcess):
         展示的逻辑也嵌套在这里
         """
         if data.succeed:
-            await self.service.insert_kline_many(
+            connector = AsyncPgConnector(config=self.config)
+            service = BinanceFuturesUMService(connector=connector, logger=self.logger)
+
+            await service.insert_kline_many(
                 symbol=data.symbol,
                 timeframe=data.timeframe,
                 klines=data.klines
             )
+
+            await connector.release()
         else:
             # 可以做展示或记录
             pass

@@ -41,6 +41,7 @@ class TestDownloaderProcess(IDownloaderProcess):
         self.result_queue = result_queue
 
     async def download(self, data: IData):
+        print(data)
         return data
 
     async def main(self):

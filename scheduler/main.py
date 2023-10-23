@@ -66,6 +66,8 @@ class BinanceFuturesUMStarterScheduler(IScheduler):
                 logger.critical(repr(e))
                 continue
 
+        await connector.release()
+
     @property
     def job_heartbeat(self):
         return {
