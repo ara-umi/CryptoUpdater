@@ -13,8 +13,8 @@ from apscheduler.triggers.date import DateTrigger
 
 from .base import IScheduler
 from ..config import BinanceFuturesUMConfig
-from ..instance.data import BinanceFuturesUMData, DataFactory
-from ..logger import LoggerFactory
+from ..instance.data import BinanceFuturesUMData
+from ..logger import LoggerFactory, LoggerType
 from ..service.connector import AsyncPgPoolConnector
 from ..service.main import BinanceFuturesUMService
 
@@ -27,10 +27,14 @@ class BinanceFuturesUMStarterScheduler(IScheduler):
 
     def __init__(
             self,
+            config: BinanceFuturesUMConfig,
+            logger: LoggerType,
             job_queue: Queue
     ):
-        super().__init__()
-
+        super().__init__(
+            config=config,
+            logger=logger
+        )
         self.job_queue = job_queue
 
     def heartbeat(self):

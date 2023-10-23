@@ -9,26 +9,10 @@ from abc import abstractmethod, ABCMeta
 from multiprocessing import Process
 from multiprocessing import Queue
 
-from ..config import IConfig
 from ..instance.data import IData
-from ..logger import LoggerFactory
 
 
 class IWorkerProcess(Process, metaclass=ABCMeta):
-
-    @abstractmethod
-    def __init__(
-            self,
-            job_queue: Queue,
-            result_queue: Queue,
-            *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
-        self.config = IConfig()
-        self.logger = LoggerFactory(config=self.config).create_logger()
-
-        self.job_queue = job_queue
-        self.result_queue = result_queue
 
     def run(self) -> None:
         asyncio.new_event_loop().run_until_complete(self.main())

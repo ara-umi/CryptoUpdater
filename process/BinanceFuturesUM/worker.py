@@ -24,17 +24,14 @@ class BinanceFuturesUMWorkerProcess(IWorkerProcess):
             self,
             job_queue: Queue,
             result_queue: Queue,
-            *args, **kwargs
     ):
-        super().__init__(*args, **kwargs)
+        super().__init__()  # IWorkerProcess没有写__init__，这里要调用Process的__init__初始化进程属性
+
         self.config = BinanceFuturesUMConfig()
         self.logger = LoggerFactory(config=self.config).create_logger()
 
         self.job_queue = job_queue
         self.result_queue = result_queue
-
-    def run(self) -> None:
-        asyncio.new_event_loop().run_until_complete(self.main())
 
     async def update(self, data: BinanceFuturesUMData, semaphore: asyncio.Semaphore, session: ClientSession):
         updater = BinanceFuturesUMKlineUpdater(

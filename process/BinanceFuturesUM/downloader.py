@@ -4,6 +4,7 @@
 # Email: 532990165@qq.com
 # DateTime: 2023/10/23 下午7:05
 
+import asyncio
 from multiprocessing import Queue
 
 from ..downloader import IDownloaderProcess
@@ -20,6 +21,8 @@ class BinanceFuturesUMDownloaderProcess(IDownloaderProcess):
             self,
             result_queue: Queue,
     ):
+        super().__init__()
+
         self.config = BinanceFuturesUMConfig()
         self.logger = LoggerFactory(config=self.config).create_logger()
         self.connector = AsyncPgPoolConnector(config=self.config)
@@ -38,7 +41,16 @@ class BinanceFuturesUMDownloaderProcess(IDownloaderProcess):
                 klines=data.klines
             )
         else:
+            # 可以做展示或记录
             pass
+
+    async def main(self):
+        while True:
+            if self.result_queue.empty():
+                await asyncio.sleep(0.1)
+            else:
+                data = self.result_queue.get()
+                asyncio.create_task(self.download(data=data))
 
 
 if __name__ == "__main__":

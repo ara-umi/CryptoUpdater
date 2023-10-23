@@ -11,7 +11,7 @@ import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from ..config import IConfig
-from ..logger import LoggerFactory
+from ..logger import LoggerFactory, LoggerType
 
 
 class IScheduler(metaclass=ABCMeta):
@@ -23,11 +23,15 @@ class IScheduler(metaclass=ABCMeta):
 
     # executor = ThreadPoolExecutor(3)
 
-    def __init__(self, *args, **kwargs):
+    @abstractmethod
+    def __init__(
+            self,
+            config: IConfig,
+            logger: LoggerType
+    ):
+        self.config = config
+        self.logger = logger
         self.scheduler = self.scheduler_type(**self.scheduler_settings)
-        # self.scheduler.add_executor(self.executor)
-        self.config = IConfig()
-        self.logger = LoggerFactory(config=self.config).create_logger()
 
     def add_job(self, job: dict):
         self.scheduler.add_job(**job)
@@ -56,6 +60,7 @@ class IScheduler(metaclass=ABCMeta):
         self.main_test()
         self.scheduler.start()
         self.logger.success(f"Scheduler Test Start")
+        asyncio.get_event_loop().run_forever()
 
 
 if __name__ == "__main__":

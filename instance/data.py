@@ -17,9 +17,10 @@ class IData(metaclass=ABCMeta):
     timeframe: str = PlaceHolder()
     limit: int = PlaceHolder()
 
-    succeed: bool = False
-    error: Optional[ErrorInfo] = None
-    klines: Optional[list[Kline]] = []
+    def __init__(self):
+        self.succeed: bool = False
+        self.error: Optional[ErrorInfo] = None
+        self.klines: Optional[list[Kline]] = []
 
     def set_error(self, type_: str, message: str, traceback: str):
         self.succeed = False
@@ -40,7 +41,10 @@ class IData(metaclass=ABCMeta):
 
 
 class BinanceData(IData):
-    url_done_dict: dict[str, bool] = {}
+
+    def __init__(self):
+        super().__init__()
+        self.url_done_dict: dict[str, bool] = {}
 
     def set_url(self, url: str):
         self.url_done_dict[url] = False
